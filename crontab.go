@@ -238,10 +238,12 @@ func parsePart(s string, min, max int) (map[int]struct{}, error) {
 
 	// */2 1-59/5 pattern
 	if matches := matchN.FindStringSubmatch(s); matches != nil {
+		localMin := min
+		localMax := max
 		if matches[1] != "" && matches[1] != "*" {
 			if rng := matchRange.FindStringSubmatch(matches[1]); rng != nil {
-				localMin, _ := strconv.Atoi(rng[1])
-				localMax, _ := strconv.Atoi(rng[2])
+				localMin, _ = strconv.Atoi(rng[1])
+				localMax, _ = strconv.Atoi(rng[2])
 				if localMin < min || localMax > max {
 					return nil, fmt.Errorf("Out of range for %s in %s. %s must be in range %d-%d", rng[1], s, rng[1], min, max)
 				}
@@ -250,7 +252,7 @@ func parsePart(s string, min, max int) (map[int]struct{}, error) {
 			}
 		}
 		n, _ := strconv.Atoi(matches[2])
-		for i := min; i <= max; i += n {
+		for i := localMin; i <= localMax; i += n {
 			r[i] = struct{}{}
 		}
 		return r, nil
