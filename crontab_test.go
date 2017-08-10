@@ -47,10 +47,15 @@ func TestSchedule(t *testing.T) {
 
 var schErrorTest = []string{
 	"* * * * * *",
+	"0-70 * * * *",
+	"* 0-30 * * *",
+	"* * 1-40/2 * *",
+	"* * ab/2 * *",
+	"* * * 1-15 *",
+	"* * * * 7,8,9",
 	"1 2 3 4 5 6",
-	"*/ 2 * * * *",
-	"1,2,3/10 * * * *",
-	"1,2,3,1-15/10 * * * *",
+	"* 1,2/10 * * *",
+	"* * 1,2,3,1-15/10 * *",
 	"a b c d e",
 }
 
@@ -58,7 +63,7 @@ var schErrorTest = []string{
 func TestScheduleError(t *testing.T) {
 	for _, s := range schErrorTest {
 		if _, err := parseSchedule(s); err == nil {
-			t.Error(s, "should be error")
+			t.Error(s, "should be error", err)
 		}
 	}
 }
