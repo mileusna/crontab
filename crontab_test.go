@@ -1,6 +1,7 @@
 package crontab
 
 import "testing"
+import "time"
 
 // TestSchedule parse the crontab syntax and compare number of target min/hour/days/month with expected ones
 func TestSchedule(t *testing.T) {
@@ -68,4 +69,8 @@ func TestScheduleError(t *testing.T) {
 			t.Error(s, "should be error", err)
 		}
 	}
+}
+
+func Fake(sec int) *Crontab {
+	return new(time.Duration(sec) * time.Second)
 }

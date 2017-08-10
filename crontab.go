@@ -40,8 +40,13 @@ type tick struct {
 
 // New crontab
 func New() *Crontab {
+	return new(time.Minute)
+}
+
+// new creates new crontab, arg provided for testing purpose
+func new(t time.Duration) *Crontab {
 	c := &Crontab{
-		ticker: time.NewTicker(time.Minute),
+		ticker: time.NewTicker(t),
 	}
 
 	go func() {
@@ -90,7 +95,7 @@ func (c *Crontab) AddJob(schedule string, fn interface{}, args ...interface{}) e
 }
 
 // MustAddJob is like AddJob but panics if there is an aproblem with job
-// It simplifies initialization, since we usually add jobs at the beggining so you won't have to check for errors
+// It simplifies initialization, since we usually add jobs at the beggining so you won't have to check for errors (it will panic when program starts)
 // MustAddJob will panic if:
 // * Cron syntax can't be parsed
 // * fn is not function
@@ -130,7 +135,7 @@ func (c *Crontab) runScheduled(t time.Time) {
 }
 
 // run the job using reflection.
-// Catch panic although all functions and params are checked by AddJob, but you never know
+// Recover from panic although all functions and params are checked by AddJob, but you never know
 func run(j job) {
 	defer func() {
 		if r := recover(); r != nil {

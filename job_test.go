@@ -1,6 +1,7 @@
 package crontab_test
 
 import (
+	"sync"
 	"testing"
 	"time"
 
@@ -39,6 +40,46 @@ var testN int
 var testS string
 
 func TestCrontab(t *testing.T) {
+	testN = 0
+	testS = ""
+
+	ctab := crontab.Fake(2) // fake crontab wiht 2sec timer to speed up test
+
+	var wg sync.WaitGroup
+	wg.Add(2)
+
+	if err := ctab.AddJob("* * * * *", func() { testN++; wg.Done() }); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := ctab.AddJob("* * * * *", func(s string) { testS = s; wg.Done() }, "param"); err != nil {
+		t.Fatal(err)
+	}
+
+	done := make(chan struct{})
+	go func() {
+		wg.Wait()
+		close(done)
+	}()
+
+	select {
+	case <-done:
+	case <-time.After(5 * time.Second):
+	}
+
+	if testN != 1 {
+		t.Error("func 1 not executed as scheduled")
+	}
+
+	if testS != "param" {
+		t.Error("func 2 not executed as scheduled")
+	}
+	ctab.Shutdown()
+}
+
+func TestRunAll(t *testing.T) {
+	testN = 0
+	testS = ""
 
 	ctab := crontab.New()
 
