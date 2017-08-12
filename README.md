@@ -59,7 +59,7 @@ func myFunc2(s string, n int) {
 
 ## Crontab syntax <a id="syntax"></a>
 
-If you are not faimiliar with crontab syntax you might be better with other similar packages. But here are few quick references about crontab syntax.
+If you are not faimiliar with crontab syntax you might be better off with other similar packages. But here are few quick references about crontab simple but powerful syntax.
 
 ```
 *     *     *     *     *        
@@ -96,7 +96,7 @@ If you are not faimiliar with crontab syntax you might be better with other simi
 
 ## Notice
 
-There is no way to reschedule or to remove single job from crontab during runtime. (Re)create new instance of crontab or use `crontab.Clear()` function and then add jobs again to reschedule during runtime.
+There is no way to reschedule or to remove single job from crontab during runtime with crontab package. (Re)create new instance of crontab or use `crontab.Clear()` function and then add jobs again to reschedule during runtime.
 
 
 
