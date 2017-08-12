@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-// Crontab struct
+// Crontab struct representing cron table
 type Crontab struct {
 	ticker *time.Ticker
 	jobs   []job
@@ -60,8 +60,11 @@ func new(t time.Duration) *Crontab {
 
 // AddJob to cron table
 // Returns error if:
+//
 // * Cron syntax can't be parsed
+//
 // * fn is not function
+//
 // * provided arg don't match the number and type of fn args
 func (c *Crontab) AddJob(schedule string, fn interface{}, args ...interface{}) error {
 	j, err := parseSchedule(schedule)
@@ -95,10 +98,13 @@ func (c *Crontab) AddJob(schedule string, fn interface{}, args ...interface{}) e
 }
 
 // MustAddJob is like AddJob but panics if there is an aproblem with job
-// It simplifies initialization, since we usually add jobs at the beggining so you won't have to check for errors (it will panic when program starts)
+// It simplifies initialization, since we usually add jobs at the beggining so you won't have to check for errors (it will panic when program starts).
 // MustAddJob will panic if:
+//
 // * Cron syntax can't be parsed
+//
 // * fn is not function
+//
 // * provided params don't match the number and type of fn params
 func (c *Crontab) MustAddJob(schedule string, fn interface{}, args ...interface{}) {
 	if err := c.AddJob(schedule, fn, args...); err != nil {
@@ -106,8 +112,9 @@ func (c *Crontab) MustAddJob(schedule string, fn interface{}, args ...interface{
 	}
 }
 
-// Shutdown the cron table schedule. Once stopped, it can't be restarted.
-// This function is pre-shuttdown helper for your app, there is no Start/Stop functionallity with crontab package
+// Shutdown the cron table schedule
+// Once stopped, it can't be restarted.
+// This function is pre-shuttdown helper for your app, there is no Start/Stop functionallity with crontab package.
 func (c *Crontab) Shutdown() {
 	c.ticker.Stop()
 }
@@ -134,8 +141,8 @@ func (c *Crontab) runScheduled(t time.Time) {
 	}
 }
 
-// run the job using reflection.
-// Recover from panic although all functions and params are checked by AddJob, but you never know
+// run the job using reflection
+// Recover from panic although all functions and params are checked by AddJob, but you never know.
 func run(j job) {
 	defer func() {
 		if r := recover(); r != nil {
