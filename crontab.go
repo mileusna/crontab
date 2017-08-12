@@ -38,7 +38,7 @@ type tick struct {
 	dayOfWeek int
 }
 
-// New crontab
+// New initializes and returns new cron table
 func New() *Crontab {
 	return new(time.Minute)
 }
@@ -59,13 +59,14 @@ func new(t time.Duration) *Crontab {
 }
 
 // AddJob to cron table
+//
 // Returns error if:
 //
-// * Cron syntax can't be parsed
+// * Cron syntax can't be parsed or out of bounds
 //
 // * fn is not function
 //
-// * provided arg don't match the number and type of fn args
+// * Provided args don't match the number and/or the type of fn args
 func (c *Crontab) AddJob(schedule string, fn interface{}, args ...interface{}) error {
 	j, err := parseSchedule(schedule)
 	if err != nil {
@@ -100,13 +101,14 @@ func (c *Crontab) AddJob(schedule string, fn interface{}, args ...interface{}) e
 // MustAddJob is like AddJob but panics if there is an problem with job
 //
 // It simplifies initialization, since we usually add jobs at the beggining so you won't have to check for errors (it will panic when program starts).
+// It is a similar aproach as go's std lib package `regexp` and `regexp.Compile()` `regexp.MustCompile()`
 // MustAddJob will panic if:
 //
-// * Cron syntax can't be parsed
+// * Cron syntax can't be parsed or out of bounds
 //
 // * fn is not function
 //
-// * provided params don't match the number and type of fn params
+// * Provided args don't match the number and/or the type of fn args
 func (c *Crontab) MustAddJob(schedule string, fn interface{}, args ...interface{}) {
 	if err := c.AddJob(schedule, fn, args...); err != nil {
 		panic(err)
@@ -122,7 +124,6 @@ func (c *Crontab) Shutdown() {
 }
 
 // Clear all jobs from cron table
-//
 func (c *Crontab) Clear() {
 	c.jobs = []job{}
 }
