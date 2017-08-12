@@ -77,7 +77,7 @@ If you are not faimiliar with crontab syntax you might be better with other simi
 
 + `* * * * *` run on every minuta
 + `10 * * * *` run at 0:10, 1:10 etc
-+ `10 15 * * *` run at 10:15 every day
++ `10 15 * * *` run at 15:10 every day
 + `* * 1 * *` run on every minute on 1st day of month
 + `0 0 1 1 *` Happy new year schedule
 + `0 0 * * 1` Run at midnight on every Monday
@@ -96,7 +96,7 @@ If you are not faimiliar with crontab syntax you might be better with other simi
 
 ## Notice
 
-There is no way to reschedule or to remove single job from crontab during runtime. (Re)create new instance of crontab to reschedule during runtime or use `crontab.Clear()` function and add jobs if you prefere.
+There is no way to reschedule or to remove single job from crontab during runtime. (Re)create new instance of crontab or use `crontab.Clear()` function and then add jobs again to reschedule during runtime.
 
 
 
