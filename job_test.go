@@ -16,6 +16,10 @@ func TestJobError(t *testing.T) {
 		t.Error("This AddJob should return Error, wrong number of args")
 	}
 
+	if err := ctab.AddJob("* * * * *", nil); err == nil {
+		t.Error("This AddJob should return Error, fn is nil")
+	}
+
 	var x int
 	if err := ctab.AddJob("* * * * *", x); err == nil {
 		t.Error("This AddJob should return Error, fn is not func kind")
@@ -26,7 +30,7 @@ func TestJobError(t *testing.T) {
 	}
 
 	if err := ctab.AddJob("* * * * *", myFunc2, "s", "s2"); err == nil {
-		t.Error("This AddJob should return Error, arg are not the correct type")
+		t.Error("This AddJob should return Error, args are not the correct type")
 	}
 
 	if err := ctab.AddJob("* * * * * *", myFunc2, "s", "s2"); err == nil {
