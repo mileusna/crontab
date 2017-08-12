@@ -97,7 +97,8 @@ func (c *Crontab) AddJob(schedule string, fn interface{}, args ...interface{}) e
 	return nil
 }
 
-// MustAddJob is like AddJob but panics if there is an aproblem with job
+// MustAddJob is like AddJob but panics if there is an problem with job
+//
 // It simplifies initialization, since we usually add jobs at the beggining so you won't have to check for errors (it will panic when program starts).
 // MustAddJob will panic if:
 //
@@ -113,6 +114,7 @@ func (c *Crontab) MustAddJob(schedule string, fn interface{}, args ...interface{
 }
 
 // Shutdown the cron table schedule
+//
 // Once stopped, it can't be restarted.
 // This function is pre-shuttdown helper for your app, there is no Start/Stop functionallity with crontab package.
 func (c *Crontab) Shutdown() {
@@ -120,6 +122,7 @@ func (c *Crontab) Shutdown() {
 }
 
 // Clear all jobs from cron table
+//
 func (c *Crontab) Clear() {
 	c.jobs = []job{}
 }
