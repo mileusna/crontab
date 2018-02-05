@@ -131,7 +131,7 @@ func (c *Crontab) Clear() {
 // RunAll jobs in cron table, shcheduled or not
 func (c *Crontab) RunAll() {
 	for _, j := range c.jobs {
-		go run(j)
+		go j.run()
 	}
 }
 
@@ -139,15 +139,15 @@ func (c *Crontab) RunAll() {
 func (c *Crontab) runScheduled(t time.Time) {
 	tick := getTick(t)
 	for _, j := range c.jobs {
-		if tickJob(tick, j) {
-			go run(j)
+		if j.tick(tick) {
+			go j.run()
 		}
 	}
 }
 
 // run the job using reflection
 // Recover from panic although all functions and params are checked by AddJob, but you never know.
-func run(j job) {
+func (j job) run() {
 	defer func() {
 		if r := recover(); r != nil {
 			log.Println("Crontab error", r)
@@ -161,8 +161,8 @@ func run(j job) {
 	v.Call(rargs)
 }
 
-// tickJob decides should the job be lauhcned at the tick
-func tickJob(t tick, j job) bool {
+// tick decides should the job be lauhcned at the tick
+func (j job) tick(t tick) bool {
 	if _, ok := j.min[t.min]; !ok {
 		return false
 	}
