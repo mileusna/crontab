@@ -12,9 +12,9 @@ func ExampleCrontab() {
 	ctab := crontab.New() // create cron table
 
 	// MustAddJob panics on wrong syntax or problem with func and args for easier initialization
-	ctab.MustAddJob("0 0 * * *", myFunc3)
+	ctab.MustAddJob("0 12 * * *", myFunc3)
 	ctab.MustAddJob("* * * * *", myFunc2, "on every minute", 123) // fn with args
-	ctab.MustAddJob("*/5 * * * *", myFunc2, "every five min", 0)
+	ctab.MustAddJob("*/2 * * * *", myFunc2, "every two min", 18)
 
 	// or use AddJob if you want to test the error
 	err := ctab.AddJob("* * * * *", myFunc)
@@ -36,5 +36,5 @@ func myFunc3() {
 }
 
 func myFunc2(s string, n int) {
-	fmt.Println("We have params here, string", s, "and number", n)
+	fmt.Printf("We have params here, string `%s` and nymber %d\n", s, n)
 }
