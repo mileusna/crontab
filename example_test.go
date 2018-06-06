@@ -3,6 +3,8 @@ package crontab_test
 import (
 	"fmt"
 	"log"
+	"testing"
+	"time"
 
 	"github.com/mileusna/crontab"
 )
@@ -37,4 +39,51 @@ func myFunc3() {
 
 func myFunc2(s string, n int) {
 	fmt.Printf("We have params here, string `%s` and nymber %d\n", s, n)
+}
+
+// go test -v ./... -run TestExampleExecStats
+func TestExampleExecStats(t *testing.T) {
+	ctab := crontab.New()
+
+	ctab.MustAddJob("* * * * *", myFuncWithStats, ctab.StatsChan())
+	log.Println("Waiting a bit for the test to complete...")
+
+	for i := 1; i <= 1; i++ {
+		myExecStats := <-ctab.StatsChan()
+		if myExecStats.JobType != "myFuncWithStats" {
+			t.Errorf("Found an unexpected Job type")
+		}
+		customStuff := myExecStats.Stats().(*myCustomStats)
+		if customStuff.strParam != "foo" {
+			t.Errorf("Found an unexpected string parameter in the stats")
+		}
+		if customStuff.intParam != 42 {
+			t.Errorf("Found an unexpected integer parameter in the stats")
+		}
+		ctab.Shutdown()
+		log.Println("Done with the test, the received stats:", customStuff)
+	}
+}
+
+// custom execution stats depending on the scheduled function
+type myCustomStats struct {
+	strParam string
+	intParam int
+}
+
+func myFuncWithStats(statsChan chan crontab.ExecStats) {
+	// work a bit...
+	time.Sleep(1 * time.Second)
+	// publish the execution stats...
+	statsChan <- crontab.ExecStats{
+		// ID to identify the job
+		JobType: "myFuncWithStats",
+		// custom execution stats
+		Stats: func() interface{} {
+			return &myCustomStats{
+				strParam: "foo",
+				intParam: 42,
+			}
+		},
+	}
 }
