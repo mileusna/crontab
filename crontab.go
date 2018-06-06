@@ -11,10 +11,20 @@ import (
 	"time"
 )
 
+// StatsFunc func representing custom execution statistics
+type StatsFunc func() interface{}
+
+// ExecStats struct representing a standardized wrapper for execution statistics
+type ExecStats struct {
+	JobType string
+	Stats   StatsFunc
+}
+
 // Crontab struct representing cron table
 type Crontab struct {
-	ticker *time.Ticker
-	jobs   []job
+	ticker    *time.Ticker
+	jobs      []job
+	statsChan chan ExecStats
 }
 
 // job in cron table
@@ -46,7 +56,8 @@ func New() *Crontab {
 // new creates new crontab, arg provided for testing purpose
 func new(t time.Duration) *Crontab {
 	c := &Crontab{
-		ticker: time.NewTicker(t),
+		ticker:    time.NewTicker(t),
+		statsChan: make(chan ExecStats),
 	}
 
 	go func() {
@@ -56,6 +67,11 @@ func new(t time.Duration) *Crontab {
 	}()
 
 	return c
+}
+
+// StatsChan returns the channel to consume execution statistics
+func (c *Crontab) StatsChan() chan ExecStats {
+	return c.statsChan
 }
 
 // AddJob to cron table
