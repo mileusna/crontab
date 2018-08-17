@@ -14,7 +14,7 @@ import (
 // Crontab struct representing cron table
 type Crontab struct {
 	ticker *time.Ticker
-	jobs   []job
+	jobs   map[string]job
 }
 
 // job in cron table
@@ -47,6 +47,7 @@ func New() *Crontab {
 func new(t time.Duration) *Crontab {
 	c := &Crontab{
 		ticker: time.NewTicker(t),
+		jobs:   map[string]job{},
 	}
 
 	go func() {
@@ -60,6 +61,9 @@ func new(t time.Duration) *Crontab {
 
 // AddJob to cron table
 //
+// CHANGE FROM THE ORIGINAL CODE:
+// - uses the current time as the default job name
+//
 // Returns error if:
 //
 // * Cron syntax can't be parsed or out of bounds
@@ -68,6 +72,22 @@ func new(t time.Duration) *Crontab {
 //
 // * Provided args don't match the number and/or the type of fn args
 func (c *Crontab) AddJob(schedule string, fn interface{}, args ...interface{}) error {
+	return c.AddNamedJob(time.Now().String(), schedule, fn, args...)
+}
+
+// AddNamedJob to cron table
+//
+// CHANGE FROM THE ORIGINAL CODE:
+// - adds a job name
+//
+// Returns error if:
+//
+// * Cron syntax can't be parsed or out of bounds
+//
+// * fn is not function
+//
+// * Provided args don't match the number and/or the type of fn args
+func (c *Crontab) AddNamedJob(name string, schedule string, fn interface{}, args ...interface{}) error {
 	j, err := parseSchedule(schedule)
 	if err != nil {
 		return err
@@ -94,7 +114,7 @@ func (c *Crontab) AddJob(schedule string, fn interface{}, args ...interface{}) e
 	// all checked, add job to cron tab
 	j.fn = fn
 	j.args = args
-	c.jobs = append(c.jobs, j)
+	c.jobs[name] = j
 	return nil
 }
 
@@ -125,7 +145,7 @@ func (c *Crontab) Shutdown() {
 
 // Clear all jobs from cron table
 func (c *Crontab) Clear() {
-	c.jobs = []job{}
+	c.jobs = map[string]job{}
 }
 
 // RunAll jobs in cron table, shcheduled or not
@@ -137,9 +157,9 @@ func (c *Crontab) RunAll() {
 
 // RunScheduled jobs
 func (c *Crontab) runScheduled(t time.Time) {
-	tick := getTick(t)
+	thisTick := getTick(t)
 	for _, j := range c.jobs {
-		if j.tick(tick) {
+		if j.tick(thisTick) {
 			go j.run()
 		}
 	}
