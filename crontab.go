@@ -92,7 +92,7 @@ func (c *Crontab) AddJob(schedule string, fn interface{}, args ...interface{}) e
 				return fmt.Errorf("Param with index %d shold be `%s` not `%s`", i, t1, t2)
 			}
 			if !t2.Implements(t1) {
-				return fmt.Errorf("Param with index %d of type `%s` doesn't implements interface `%s`", i, t2, t1)
+				return fmt.Errorf("Param with index %d of type `%s` doesn't implement interface `%s`", i, t2, t1)
 			}
 		}
 	}
