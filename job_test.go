@@ -37,6 +37,21 @@ func TestJobError(t *testing.T) {
 		t.Error("This AddJob should return Error, syntax error")
 	}
 
+	// custom types and interfaces as function params
+	var m MyTypeInterface
+	if err := ctab.AddJob("* * * * *", myFuncStruct, m); err != nil {
+		t.Error(err)
+	}
+
+	if err := ctab.AddJob("* * * * *", myFuncInterface, m); err != nil {
+		t.Error(err)
+	}
+
+	var mwo MyTypeNoInterface
+	if err := ctab.AddJob("* * * * *", myFuncInterface, mwo); err == nil {
+		t.Error("This should return error, type that don't implements interface assigned as param")
+	}
+
 	ctab.Shutdown()
 }
 

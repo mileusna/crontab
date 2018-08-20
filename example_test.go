@@ -38,3 +38,29 @@ func myFunc3() {
 func myFunc2(s string, n int) {
 	fmt.Printf("We have params here, string `%s` and nymber %d\n", s, n)
 }
+
+type MyTypeInterface struct {
+	ID   int
+	Name string
+}
+
+func (m MyTypeInterface) Bar() string {
+	return "OK"
+}
+
+type MyTypeNoInterface struct {
+	ID   int
+	Name string
+}
+
+func myFuncStruct(m MyTypeInterface) {
+	fmt.Println("Custom type as param")
+}
+
+func myFuncInterface(i Foo) {
+	i.Bar()
+}
+
+type Foo interface {
+	Bar() string
+}

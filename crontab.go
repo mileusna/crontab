@@ -86,8 +86,14 @@ func (c *Crontab) AddJob(schedule string, fn interface{}, args ...interface{}) e
 		a := args[i]
 		t1 := fnType.In(i)
 		t2 := reflect.TypeOf(a)
+
 		if t1 != t2 {
-			return fmt.Errorf("Param with index %d shold be `%s` not `%s`", i, t1, t2)
+			if t1.Kind() != reflect.Interface {
+				return fmt.Errorf("Param with index %d shold be `%s` not `%s`", i, t1, t2)
+			}
+			if !t2.Implements(t1) {
+				return fmt.Errorf("Param with index %d of type `%s` doesn't implements interface `%s`", i, t2, t1)
+			}
 		}
 	}
 
