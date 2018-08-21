@@ -333,3 +333,11 @@ func getTick(t time.Time) tick {
 		dayOfWeek: int(t.Weekday()),
 	}
 }
+
+// GetFn returns the function associated with a job retrieved with its name
+func (c *Crontab) GetFn(name string) interface{} {
+	if j, ok := c.jobs[name]; ok {
+		return j.fn
+	}
+	return nil
+}
