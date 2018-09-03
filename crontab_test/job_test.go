@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/mileusna/crontab"
+	"crontab"
 )
 
 func TestJobError(t *testing.T) {
@@ -62,7 +62,7 @@ func TestCrontab(t *testing.T) {
 	testN = 0
 	testS = ""
 
-	ctab := crontab.Fake(2) // fake crontab wiht 2sec timer to speed up test
+	ctab := crontab.Fake(2) // fake crontab with 2sec timer to speed up test
 
 	var wg sync.WaitGroup
 	wg.Add(2)

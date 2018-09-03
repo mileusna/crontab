@@ -40,11 +40,11 @@ type tick struct {
 
 // New initializes and returns new cron table
 func New() *Crontab {
-	return new(time.Minute)
+	return _new(time.Minute)
 }
 
-// new creates new crontab, arg provided for testing purpose
-func new(t time.Duration) *Crontab {
+// _new creates new crontab, arg provided for testing purpose
+func _new(t time.Duration) *Crontab {
 	c := &Crontab{
 		ticker: time.NewTicker(t),
 	}
@@ -56,6 +56,16 @@ func new(t time.Duration) *Crontab {
 	}()
 
 	return c
+}
+
+// fake crontab, to speed up test for testing purpose
+func Fake(sec int) *Crontab {
+	return _new(time.Duration(sec) * time.Second)
+}
+
+// nothing but just a 'foo msg' for info purpose
+func Fake_Msg(str string) string {
+	return "foo msg : " + str
 }
 
 // AddJob to cron table
