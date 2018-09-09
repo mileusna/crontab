@@ -77,7 +77,7 @@ Here are the few quick references about crontab simple but powerful syntax.
 
 ### Examples
 
-+ `* * * * *` run on every minuta
++ `* * * * *` run on every minute
 + `10 * * * *` run at 0:10, 1:10 etc
 + `10 15 * * *` run at 15:10 every day
 + `* * 1 * *` run on every minute on 1st day of month
@@ -94,7 +94,7 @@ Here are the few quick references about crontab simple but powerful syntax.
 + `*/2 * * * *` run every two minutes
 + `10 */3 * * *` run every 3 hours on 10th min
 + `0 12 */2 * *` run at noon on every two days
-+ `1-59/2 * * *` run every two minutes, but on odd minutes
++ `1-59/2 * * * *` run every two minutes, but on odd minutes
 
 ## Notice
 
