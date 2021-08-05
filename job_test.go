@@ -102,16 +102,19 @@ func TestRunAll(t *testing.T) {
 
 	ctab := crontab.New()
 
-	if err := ctab.AddJob("* * * * *", func() { testN++ }); err != nil {
+	var wg sync.WaitGroup
+	wg.Add(2)
+
+	if err := ctab.AddJob("* * * * *", func() { testN++; wg.Done() }); err != nil {
 		t.Fatal(err)
 	}
 
-	if err := ctab.AddJob("* * * * *", func(s string) { testS = s }, "param"); err != nil {
+	if err := ctab.AddJob("* * * * *", func(s string) { testS = s; wg.Done() }, "param"); err != nil {
 		t.Fatal(err)
 	}
 
 	ctab.RunAll()
-	time.Sleep(time.Second)
+	wg.Wait()
 
 	if testN != 1 {
 		t.Error("func not executed on RunAll()")
