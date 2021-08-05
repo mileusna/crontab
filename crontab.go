@@ -191,11 +191,11 @@ func (j job) tick(t tick) bool {
 	return true
 }
 
-// regexps for parsing schedyle string
+// regexps for parsing schedule string
 var (
-	matchSpaces = regexp.MustCompile("\\s+")
-	matchN      = regexp.MustCompile("(.*)/(\\d+)")
-	matchRange  = regexp.MustCompile("^(\\d+)-(\\d+)$")
+	matchSpaces = regexp.MustCompile(`\s+`)
+	matchN      = regexp.MustCompile(`(.*)/(\d+)`)
+	matchRange  = regexp.MustCompile(`^(\d+)-(\d+)$`)
 )
 
 // parseSchedule string and creates job struct with filled times to launch, or error if synthax is wrong
