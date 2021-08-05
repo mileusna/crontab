@@ -8,13 +8,15 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 )
 
 // Crontab struct representing cron table
 type Crontab struct {
 	ticker *time.Ticker
-	jobs   []job
+	jobs   []*job
+	sync.RWMutex
 }
 
 // job in cron table
@@ -27,6 +29,7 @@ type job struct {
 
 	fn   interface{}
 	args []interface{}
+	sync.RWMutex
 }
 
 // tick is individual tick that occures each minute
@@ -47,6 +50,7 @@ func New() *Crontab {
 func new(t time.Duration) *Crontab {
 	c := &Crontab{
 		ticker: time.NewTicker(t),
+		jobs:   []*job{},
 	}
 
 	go func() {
@@ -69,6 +73,8 @@ func new(t time.Duration) *Crontab {
 // * Provided args don't match the number and/or the type of fn args
 func (c *Crontab) AddJob(schedule string, fn interface{}, args ...interface{}) error {
 	j, err := parseSchedule(schedule)
+	c.Lock()
+	defer c.Unlock()
 	if err != nil {
 		return err
 	}
@@ -131,11 +137,15 @@ func (c *Crontab) Shutdown() {
 
 // Clear all jobs from cron table
 func (c *Crontab) Clear() {
-	c.jobs = []job{}
+	c.Lock()
+	c.jobs = []*job{}
+	c.Unlock()
 }
 
 // RunAll jobs in cron table, shcheduled or not
 func (c *Crontab) RunAll() {
+	c.RLock()
+	defer c.RUnlock()
 	for _, j := range c.jobs {
 		go j.run()
 	}
@@ -144,6 +154,9 @@ func (c *Crontab) RunAll() {
 // RunScheduled jobs
 func (c *Crontab) runScheduled(t time.Time) {
 	tick := getTick(t)
+	c.RLock()
+	defer c.RUnlock()
+
 	for _, j := range c.jobs {
 		if j.tick(tick) {
 			go j.run()
@@ -153,7 +166,8 @@ func (c *Crontab) runScheduled(t time.Time) {
 
 // run the job using reflection
 // Recover from panic although all functions and params are checked by AddJob, but you never know.
-func (j job) run() {
+func (j *job) run() {
+	j.RLock()
 	defer func() {
 		if r := recover(); r != nil {
 			log.Println("Crontab error", r)
@@ -164,11 +178,14 @@ func (j job) run() {
 	for i, a := range j.args {
 		rargs[i] = reflect.ValueOf(a)
 	}
+	j.RUnlock()
 	v.Call(rargs)
 }
 
 // tick decides should the job be lauhcned at the tick
-func (j job) tick(t tick) bool {
+func (j *job) tick(t tick) bool {
+	j.RLock()
+	defer j.RUnlock()
 	if _, ok := j.min[t.min]; !ok {
 		return false
 	}
@@ -199,11 +216,15 @@ var (
 )
 
 // parseSchedule string and creates job struct with filled times to launch, or error if synthax is wrong
-func parseSchedule(s string) (j job, err error) {
+func parseSchedule(s string) (*job, error) {
+	var err error
+	j := &job{}
+	j.Lock()
+	defer j.Unlock()
 	s = matchSpaces.ReplaceAllLiteralString(s, " ")
 	parts := strings.Split(s, " ")
 	if len(parts) != 5 {
-		return job{}, errors.New("Schedule string must have five components like * * * * *")
+		return j, errors.New("Schedule string must have five components like * * * * *")
 	}
 
 	j.min, err = parsePart(parts[0], 0, 59)
@@ -248,7 +269,7 @@ func parseSchedule(s string) (j job, err error) {
 // parsePart parse individual schedule part from schedule string
 func parsePart(s string, min, max int) (map[int]struct{}, error) {
 
-	r := make(map[int]struct{}, 0)
+	r := make(map[int]struct{})
 
 	// wildcard pattern
 	if s == "*" {
