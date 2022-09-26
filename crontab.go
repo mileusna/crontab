@@ -17,6 +17,7 @@ type Crontab struct {
 	ticker *time.Ticker
 	jobs   []*job
 	sync.RWMutex
+	location *time.Location
 }
 
 // job in cron table
@@ -60,6 +61,19 @@ func new(t time.Duration) *Crontab {
 	}()
 
 	return c
+}
+
+// SetLocation to run cron on specific timezone.
+//
+// Returns error if provided location is not valid
+func (c *Crontab) SetLocation(location string) error {
+	loc, err := time.LoadLocation(location)
+	if err != nil {
+		return err
+	}
+	c.location = loc
+
+	return nil
 }
 
 // AddJob to cron table
@@ -153,6 +167,10 @@ func (c *Crontab) RunAll() {
 
 // RunScheduled jobs
 func (c *Crontab) runScheduled(t time.Time) {
+	if c.location != nil {
+		t = t.In(c.location)
+	}
+
 	tick := getTick(t)
 	c.RLock()
 	defer c.RUnlock()
