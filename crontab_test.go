@@ -1,7 +1,9 @@
 package crontab
 
-import "testing"
-import "time"
+import (
+	"testing"
+	"time"
+)
 
 // TestSchedule parse the crontab syntax and compare number of target min/hour/days/month with expected ones
 func TestSchedule(t *testing.T) {
